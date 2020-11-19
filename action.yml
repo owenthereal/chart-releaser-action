@@ -14,12 +14,19 @@ inputs:
     default: charts
   charts_repo_url:
     description: "The GitHub Pages URL to the charts repo (default: https://<owner>.github.io/<repo>)"
+  github_repository:
+    description: "The target GitHub Repository to publish the charts repo to (default: $GITHUB_REPOSITORY)"
 runs:
   using: composite
   steps:
     - run: |
-        owner=$(cut -d '/' -f 1 <<< "$GITHUB_REPOSITORY")
-        repo=$(cut -d '/' -f 2 <<< "$GITHUB_REPOSITORY")
+        github_repo="$GITHUB_REPOSITORY"
+        if [[ -n "${{ inputs.github_repository }}" ]]; then
+            github_repo="${{ inputs.github_repository }}"
+        fi
+
+        owner=$(cut -d '/' -f 1 <<< "$github_repo")
+        repo=$(cut -d '/' -f 2 <<< "$github_repo")
 
         args=(--owner "$owner" --repo "$repo")
         args+=(--charts-dir "${{ inputs.charts_dir }}")
